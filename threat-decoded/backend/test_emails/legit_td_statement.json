@@ -1,0 +1,9 @@
+{
+  "id": "test-legit-statement-001",
+  "type": "legitimate",
+  "subject": "Your January statement is ready",
+  "body": "Your monthly statement for your TD Every Day Checking Account ending in 4521 is now available. Log in to EasyWeb to view your statement.\n\nTD Canada Trust",
+  "from_address": "statements@td.com",
+  "difficulty": "easy",
+  "why_legitimate": ["real TD domain (td.com)", "no suspicious links", "matches TD's standard statement notification template", "no urgency or threats"]
+}

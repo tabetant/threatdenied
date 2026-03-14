@@ -1,0 +1,21 @@
+{
+  "email_domains": [
+    "td.com",
+    "tdcanadatrust.com",
+    "tdbank.com",
+    "tdinsurance.com",
+    "tdwaterhouse.ca",
+    "tdauto.com",
+    "tdsecurities.com",
+    "tdameritrade.com"
+  ],
+  "phone_numbers": [
+    "18669222932",
+    "18006227223",
+    "18665673488",
+    "18007228473",
+    "18882897827"
+  ],
+  "short_codes": ["89119", "12279"],
+  "notes": "These are the only legitimate TD Bank sender identifiers. Any message claiming to be from TD using a different domain or number is suspect."
+}

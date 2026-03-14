@@ -1,0 +1,48 @@
+[
+  {
+    "name": "Monthly statement ready",
+    "subject_sample": "Your monthly statement is ready",
+    "body_sample": "Your monthly statement for your TD account ending in is now available. Log in to EasyWeb to view your statement. TD Canada Trust",
+    "keywords": ["statement", "easyweb", "account ending", "available", "log in"],
+    "has_links": false,
+    "asks_for_credentials": false,
+    "typical_sender": "statements@td.com"
+  },
+  {
+    "name": "EasyWeb login alert",
+    "subject_sample": "New sign-in to your TD EasyWeb account",
+    "body_sample": "We detected a new sign-in to your TD EasyWeb account. If this was you no action is required. If you did not sign in please call us immediately at 1-866-222-3456. TD Canada Trust",
+    "keywords": ["sign-in", "easyweb", "detected", "action", "call", "immediately"],
+    "has_links": false,
+    "asks_for_credentials": false,
+    "typical_sender": "alerts@td.com"
+  },
+  {
+    "name": "TD Visa e-statement",
+    "subject_sample": "Your TD Visa statement is now available",
+    "body_sample": "Your TD Visa statement is now available online. Log in to EasyWeb or the TD app to view your balance and transactions.",
+    "keywords": ["visa", "statement", "available", "easyweb", "td app", "balance", "transactions"],
+    "has_links": false,
+    "asks_for_credentials": false,
+    "typical_sender": "tdvisa@td.com"
+  },
+  {
+    "name": "TD promotional offer",
+    "subject_sample": "A special offer for TD customers",
+    "body_sample": "As a valued TD customer you may be eligible for a special rate on a new TD product. Visit td.com or your local branch to learn more. No action required.",
+    "keywords": ["offer", "eligible", "td customer", "branch", "visit", "rate"],
+    "has_links": false,
+    "asks_for_credentials": false,
+    "typical_sender": "offers@td.com"
+  },
+  {
+    "name": "Interac e-Transfer received",
+    "subject_sample": "INTERAC e-Transfer: You have received money",
+    "body_sample": "You have received an Interac e-Transfer. To deposit your funds please log in through your bank's online banking. This transfer will expire in 30 days.",
+    "keywords": ["interac", "e-transfer", "received", "deposit", "online banking", "expire"],
+    "has_links": true,
+    "asks_for_credentials": false,
+    "typical_sender": "notifications@payments.interac.ca",
+    "note": "Real e-transfers come from Interac, not TD"
+  }
+]
