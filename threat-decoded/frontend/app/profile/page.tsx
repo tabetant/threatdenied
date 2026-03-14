@@ -6,7 +6,7 @@ import ScoreCard from "@/components/ScoreCard";
 import { getProfile, UserProfile } from "@/lib/api";
 
 // For the hackathon demo, use a default user ID from the seed data
-const DEMO_USER_ID = "user_1";
+const DEMO_USER_ID = "demo-user-1";
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
