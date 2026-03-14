@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TD Threat Decoded — Admin Review</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F5F5F5; color: #1A1A1A; }
+
+  header {
+    background: #008A4C; color: white; padding: 16px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,.2);
+  }
+  header h1 { font-size: 20px; font-weight: 700; letter-spacing: .5px; }
+  header span { font-size: 13px; opacity: .8; }
+  .refresh-btn {
+    background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
+    color: white; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px;
+  }
+  .refresh-btn:hover { background: rgba(255,255,255,.25); }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+
+  .section-title {
+    font-size: 16px; font-weight: 700; color: #1A1A1A;
+    margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #008A4C;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .badge { background: #008A4C; color: white; border-radius: 12px; padding: 2px 9px; font-size: 12px; font-weight: 600; }
+  .badge.red { background: #D32F2F; }
+  .badge.amber { background: #F57C00; }
+
+  .empty { text-align: center; color: #888; padding: 48px; font-size: 15px; }
+
+  /* Review card */
+  .card {
+    background: white; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    margin-bottom: 20px; overflow: hidden; border: 1px solid #E0E0E0;
+  }
+  .card-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    padding: 16px 20px; border-bottom: 1px solid #F0F0F0; gap: 16px;
+  }
+  .card-meta { flex: 1; min-width: 0; }
+  .card-subject { font-size: 15px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card-from { font-size: 13px; color: #666; }
+  .card-from span { color: #1A1A1A; font-weight: 500; }
+  .card-time { font-size: 12px; color: #999; white-space: nowrap; margin-top: 4px; }
+
+  .score-block { text-align: center; min-width: 80px; }
+  .score-num { font-size: 28px; font-weight: 800; line-height: 1; }
+  .score-num.fraud { color: #D32F2F; }
+  .score-num.legitimate { color: #2E7D32; }
+  .score-num.suspicious { color: #F57C00; }
+  .score-label { font-size: 11px; color: #999; margin-top: 2px; text-transform: uppercase; letter-spacing: .5px; }
+
+  .verdict-badge {
+    display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .5px;
+  }
+  .verdict-badge.fraud { background: #FFEBEE; color: #C62828; border: 1px solid #EF9A9A; }
+  .verdict-badge.legitimate { background: #E8F5E9; color: #2E7D32; border: 1px solid #A5D6A7; }
+  .verdict-badge.suspicious { background: #FFF8E1; color: #E65100; border: 1px solid #FFE082; }
+
+  .card-body { padding: 16px 20px; }
+  .email-box {
+    background: #F8F9FA; border: 1px solid #E8E8E8; border-radius: 6px;
+    padding: 14px; font-size: 13px; font-family: 'SF Mono', 'Fira Code', monospace;
+    white-space: pre-wrap; word-break: break-word; max-height: 200px; overflow-y: auto;
+    color: #333; line-height: 1.6; margin-bottom: 14px;
+  }
+
+  .signals { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .signal-chip {
+    font-size: 11px; padding: 3px 8px; border-radius: 4px; font-weight: 600;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .signal-chip.pos { background: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2; }
+  .signal-chip.neg { background: #E8F5E9; color: #2E7D32; border: 1px solid #C8E6C9; }
+  .signal-pts { font-weight: 800; }
+
+  .summary-box {
+    background: #F0F4FF; border-left: 3px solid #3F51B5; padding: 10px 14px;
+    border-radius: 0 6px 6px 0; font-size: 13px; color: #333; line-height: 1.5;
+    margin-bottom: 16px;
+  }
+  .summary-label { font-size: 11px; font-weight: 700; color: #3F51B5; text-transform: uppercase; margin-bottom: 4px; }
+
+  .actions { display: flex; gap: 10px; }
+  .btn {
+    flex: 1; padding: 11px; border: none; border-radius: 8px; font-size: 14px;
+    font-weight: 700; cursor: pointer; transition: opacity .15s; letter-spacing: .3px;
+  }
+  .btn:hover { opacity: .88; }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-fraud { background: #D32F2F; color: white; }
+  .btn-legit { background: #2E7D32; color: white; }
+
+  .done-state { text-align: center; padding: 14px; font-size: 14px; color: #666; font-style: italic; }
+
+  /* History table */
+  .history-table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+  .history-table th { background: #F5F5F5; padding: 11px 14px; text-align: left; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #666; border-bottom: 1px solid #E0E0E0; }
+  .history-table td { padding: 10px 14px; font-size: 13px; border-bottom: 1px solid #F0F0F0; }
+  .history-table tr:last-child td { border-bottom: none; }
+  .history-table tr:hover td { background: #FAFAFA; }
+
+  .auto-tag { font-size: 11px; color: #888; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>TD Threat Decoded</h1>
+    <span>Admin Review Console</span>
+  </div>
+  <button class="refresh-btn" onclick="loadAll()">↻ Refresh</button>
+</header>
+
+<main>
+  <div class="section-title">
+    Review Queue <span class="badge red" id="queue-count">0</span>
+  </div>
+  <div id="queue-container"><div class="empty">Loading...</div></div>
+
+  <div class="section-title" style="margin-top: 40px;">
+    Recent History <span class="badge" id="history-count">0</span>
+  </div>
+  <div id="history-container"><div class="empty">Loading...</div></div>
+</main>
+
+<script>
+const API = '';
+
+function fmtDate(iso) {
+  return new Date(iso).toLocaleString('en-CA', {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+function verdictClass(v) {
+  if (!v) return 'suspicious';
+  if (v.toLowerCase().includes('fraud')) return 'fraud';
+  if (v.toLowerCase().includes('legit')) return 'legitimate';
+  return 'suspicious';
+}
+
+function renderSignals(signals) {
+  if (!signals || signals.length === 0) return '<div style="font-size:13px;color:#999;">No signals recorded</div>';
+  return '<div class="signals">' + signals.map(s => {
+    const isPos = s.pts > 0;
+    const ptsStr = isPos ? `+${s.pts}` : `${s.pts}`;
+    const detail = s.detail ? ` — ${s.detail}` : '';
+    return `<span class="signal-chip ${isPos ? 'pos' : 'neg'}">
+      <span class="signal-pts">${ptsStr}</span> ${s.id}: ${s.name}${detail}
+    </span>`;
+  }).join('') + '</div>';
+}
+
+function renderCard(item) {
+  const vc = verdictClass(item.ai_verdict);
+  const score = item.ai_fraud_score != null ? Math.round(item.ai_fraud_score) : '?';
+  const conf = item.ai_confidence != null ? Math.round(item.ai_confidence) : '?';
+
+  return `
+  <div class="card" id="card-${item.id}">
+    <div class="card-header">
+      <div class="card-meta">
+        <div class="card-subject">${escHtml(item.original_subject || '(no subject)')}</div>
+        <div class="card-from">From: <span>${escHtml(item.original_sender || 'unknown')}</span></div>
+        <div class="card-from" style="margin-top:2px">Forwarded by: <span>${escHtml(item.forwarded_by || '')}</span></div>
+        <div class="card-time">${fmtDate(item.received_at)}</div>
+        <div style="margin-top:6px"><span class="verdict-badge ${vc}">AI: ${item.ai_verdict || 'pending'}</span> &nbsp; Confidence: ${conf}%</div>
+      </div>
+      <div class="score-block">
+        <div class="score-num ${vc}">${score}</div>
+        <div class="score-label">/ 100</div>
+        <div class="score-label" style="margin-top:4px">Fraud Score</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="email-box">${escHtml(item.original_body || '(empty)')}</div>
+      ${renderSignals(item.ai_signals)}
+      ${item.ai_summary ? `<div class="summary-box"><div class="summary-label">AI Summary</div>${escHtml(item.ai_summary)}</div>` : ''}
+      <div class="actions" id="actions-${item.id}">
+        <button class="btn btn-fraud" onclick="review('${item.id}', 'fraud', '${escHtml(item.forwarded_by)}')">
+          ✕ Mark as Fraud
+        </button>
+        <button class="btn btn-legit" onclick="review('${item.id}', 'legitimate', '${escHtml(item.forwarded_by)}')">
+          ✓ Mark as Legitimate
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function review(id, verdict, forwardedBy) {
+  const actionsEl = document.getElementById(`actions-${id}`);
+  actionsEl.querySelectorAll('button').forEach(b => b.disabled = true);
+
+  const res = await fetch(`${API}/api/review/${id}`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({verdict})
+  });
+
+  if (res.ok) {
+    const card = document.getElementById(`card-${id}`);
+    actionsEl.innerHTML = `<div class="done-state">✓ Marked as <strong>${verdict}</strong> — reply sent to ${forwardedBy}</div>`;
+    setTimeout(() => {
+      card.style.transition = 'opacity .4s';
+      card.style.opacity = '0';
+      setTimeout(() => { card.remove(); updateQueueCount(); loadHistory(); }, 400);
+    }, 1500);
+  } else {
+    actionsEl.querySelectorAll('button').forEach(b => b.disabled = false);
+    alert('Error submitting review. Please try again.');
+  }
+}
+
+function updateQueueCount() {
+  const cards = document.querySelectorAll('[id^="card-"]');
+  document.getElementById('queue-count').textContent = cards.length;
+}
+
+async function loadQueue() {
+  const res = await fetch(`${API}/api/queue`);
+  const items = await res.json();
+  const container = document.getElementById('queue-container');
+  document.getElementById('queue-count').textContent = items.length;
+
+  if (items.length === 0) {
+    container.innerHTML = '<div class="empty">✓ No emails pending review</div>';
+  } else {
+    container.innerHTML = items.map(renderCard).join('');
+  }
+}
+
+async function loadHistory() {
+  const res = await fetch(`${API}/api/history`);
+  const items = await res.json();
+  const container = document.getElementById('history-container');
+  document.getElementById('history-count').textContent = items.length;
+
+  if (items.length === 0) {
+    container.innerHTML = '<div class="empty">No processed emails yet</div>';
+    return;
+  }
+
+  const rows = items.map(s => {
+    const vc = verdictClass(s.verdict);
+    const score = s.fraud_score != null ? Math.round(s.fraud_score) : '—';
+    const auto = s.status === 'auto_replied' ? ' <span class="auto-tag">(auto)</span>' : '';
+    return `<tr>
+      <td>${escHtml(s.original_subject || '(no subject)')}</td>
+      <td>${escHtml(s.original_sender || 'unknown')}</td>
+      <td>${escHtml(s.forwarded_by || '')}</td>
+      <td><span class="verdict-badge ${vc}">${s.verdict || '?'}</span>${auto}</td>
+      <td><strong>${score}</strong>/100</td>
+      <td>${fmtDate(s.received_at)}</td>
+    </tr>`;
+  }).join('');
+
+  container.innerHTML = `
+    <table class="history-table">
+      <thead><tr>
+        <th>Subject</th><th>Original Sender</th><th>Forwarded By</th>
+        <th>Verdict</th><th>Score</th><th>Received</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function loadAll() {
+  loadQueue();
+  loadHistory();
+}
+
+loadAll();
+setInterval(loadAll, 15000);
+</script>
+</body>
+</html>
