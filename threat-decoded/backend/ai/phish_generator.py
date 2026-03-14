@@ -1,5 +1,5 @@
 """
-Claude-powered test phishing email generator.
+AI-powered test phishing email generator.
 Phase 5 implementation target.
 """
 import json

@@ -1,5 +1,5 @@
 """
-Claude-powered conversational chat about a fraud verdict.
+AI-powered conversational chat about a fraud verdict.
 Phase 3 implementation target.
 """
 import json

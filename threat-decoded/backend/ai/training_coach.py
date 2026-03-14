@@ -1,5 +1,5 @@
 """
-Claude-powered training feedback generator.
+AI-powered training feedback generator.
 Phase 5 implementation target.
 """
 import json

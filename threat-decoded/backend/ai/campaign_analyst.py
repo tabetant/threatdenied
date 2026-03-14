@@ -1,5 +1,5 @@
 """
-Claude-powered campaign clustering and threat intelligence.
+AI-powered campaign clustering and threat intelligence.
 Phase 6 implementation target.
 """
 import json
