@@ -6,7 +6,7 @@ from db import init_db
 
 from routes import analyze, reports, campaigns, profile, chat, training, dashboard
 
-app = FastAPI(title="Threat Decoded API", version="0.1.0")
+app = FastAPI(title="Threat Denied API", version="0.1.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -32,4 +32,4 @@ def on_startup():
 
 @app.get("/")
 def health():
-    return {"status": "ok", "service": "threat-decoded-api"}
+    return {"status": "ok", "service": "threat-denied-api"}

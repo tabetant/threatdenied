@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Threat Decoded | TD Bank Fraud Verification",
+  title: "Threat Denied | TD Bank Fraud Verification",
   description: "Got a suspicious message claiming to be from TD? Don't wonder — ask TD.",
 };
 
