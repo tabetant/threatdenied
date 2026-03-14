@@ -3,15 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import os
 
-from config import FRONTEND_ORIGIN
-from db import init_db
-from database import init_db as init_db_v2
+from database import init_db
 
-from routes import analyze, reports, campaigns, profile, chat, training, dashboard
 from routes.inbound import router as inbound_router
 from routes.review import router as review_router
 
-app = FastAPI(title="Threat Decoded", version="0.2.0")
+app = FastAPI(title="Threat Decoded", version="0.3.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -20,15 +17,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Original routes
-app.include_router(analyze.router, prefix="/api")
-app.include_router(reports.router, prefix="/api")
-app.include_router(campaigns.router, prefix="/api")
-app.include_router(profile.router, prefix="/api")
-app.include_router(chat.router, prefix="/api")
-app.include_router(training.router, prefix="/api")
-app.include_router(dashboard.router, prefix="/api")
 
 # Email pipeline routes
 app.include_router(inbound_router)
@@ -43,7 +31,6 @@ if os.path.isdir(_admin_dir):
 @app.on_event("startup")
 def on_startup():
     init_db()
-    init_db_v2()
 
 
 @app.get("/")
