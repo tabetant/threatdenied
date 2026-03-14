@@ -1,0 +1,9 @@
+{
+  "id": "test-phish-credit-001",
+  "type": "phishing",
+  "subject": "Your TD Visa credit limit increase is ready",
+  "body": "TD Alert: Congratulations! Your TD Visa credit limit has been pre-approved for an increase to $15,000. Verify your identity to activate: https://td-secure-verify.ca/activate\n\nOffer expires in 24 hours.",
+  "from_address": "creditlimit@td-secure-verify.ca",
+  "difficulty": "easy",
+  "red_flags": ["fake domain (td-secure-verify.ca)", "urgency (24 hours)", "TD never sends credit limit links via SMS/email", "not from td.com"]
+}

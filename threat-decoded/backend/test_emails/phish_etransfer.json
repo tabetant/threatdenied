@@ -1,0 +1,9 @@
+{
+  "id": "test-phish-etransfer-001",
+  "type": "phishing",
+  "subject": "You've received an Interac e-Transfer",
+  "body": "From: TD Canada Trust <notifications@td-etransfer-alert.com>\n\nYou've received $500.00 from John Smith.\nTo deposit your money, click here: https://td-etransfer-alert.com/deposit\nThis transfer will expire in 24 hours.",
+  "from_address": "notifications@td-etransfer-alert.com",
+  "difficulty": "medium",
+  "red_flags": ["domain td-etransfer-alert.com is not td.com or interac.ca", "real Interac transfers come from payments.interac.ca not TD", "urgency tactic"]
+}

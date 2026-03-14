@@ -1,0 +1,9 @@
+{
+  "id": "test-legit-promo-001",
+  "type": "legitimate",
+  "subject": "A special offer for TD customers",
+  "body": "As a valued TD customer, you may be eligible for a special rate on a new TD product. Visit td.com or your local TD branch to learn more. No action required.\n\nTD Canada Trust",
+  "from_address": "offers@td.com",
+  "difficulty": "easy",
+  "why_legitimate": ["real TD domain (td.com)", "directs to td.com not a third-party link", "no urgency", "no credential requests", "matches TD promotional email style"]
+}
