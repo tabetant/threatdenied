@@ -3,7 +3,9 @@ from database import get_db, Submission
 from services.email_sender import send_reply
 from datetime import datetime
 import json
+import logging
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
@@ -38,19 +40,27 @@ def submit_review(submission_id: str, body: dict):
     submission.reviewer_notes = body.get("notes", "")
     submission.reviewed_at = datetime.utcnow()
     submission.status = "reviewed"
+    db.commit()  # Save verdict first, before attempting email
 
-    analysis = json.loads(submission.ai_analysis) if submission.ai_analysis else {}
-    send_reply(
-        to=submission.forwarded_by,
-        verdict=verdict,
-        original_subject=submission.original_subject or "",
-        original_body=submission.original_body or "",
-        original_sender=submission.original_sender or "unknown",
-        analysis_summary=analysis.get("summary", "Reviewed by a TD analyst.")
-    )
-    submission.reply_sent = True
-    submission.reply_sent_at = datetime.utcnow()
-    db.commit()
+    # Send reply separately so a mail failure doesn't break the verdict save
+    try:
+        analysis = json.loads(submission.ai_analysis) if submission.ai_analysis else {}
+        send_reply(
+            to=submission.forwarded_by,
+            verdict=verdict,
+            original_subject=submission.original_subject or "",
+            original_body=submission.original_body or "",
+            original_sender=submission.original_sender or "unknown",
+            analysis_summary=analysis.get("summary", "Reviewed by a TD analyst.")
+        )
+        submission.reply_sent = True
+        submission.reply_sent_at = datetime.utcnow()
+        db.commit()
+        logger.info(f"Reply sent for submission {submission_id} verdict={verdict}")
+    except Exception as e:
+        logger.error(f"Failed to send reply for {submission_id}: {e}")
+        return {"status": "reviewed", "verdict": verdict, "reply_error": str(e)}
+
     return {"status": "reviewed", "verdict": verdict}
 
 
