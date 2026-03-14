@@ -54,7 +54,7 @@ async def _stream(request: AnalyzeRequest, db: Session):
     yield f"data: {json.dumps(campaign_result)}\n\n"
     await asyncio.sleep(0)
 
-    # ── 5. AI content analysis (Claude API — slowest, yields last) ────────────
+    # ── 5. AI content analysis (API call — slowest, yields last) ──────────────
     try:
         ai_raw = analyze_content(request.content, request.type)
         content_event = build_forensic_event(ai_raw)

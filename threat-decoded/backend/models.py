@@ -121,3 +121,19 @@ class GenerateTestRequest(BaseModel):
     count: int = 5
     difficulty: str = "medium"      # easy | medium | hard
     avoid_recent_types: Optional[List[str]] = []
+
+
+class FlagTestEmailRequest(BaseModel):
+    flagged_as_phishing: bool
+
+
+class TestEmailSummary(BaseModel):
+    id: str
+    type: str
+    subject: str
+    from_address: str
+    body: str
+    difficulty: str
+    was_flagged: Optional[bool]
+    flagged_at: Optional[str]
+    sent_at: str

@@ -1,5 +1,5 @@
 """
-Claude-powered fraud content analysis.
+AI-powered fraud content analysis.
 Calls the fraud_analysis system prompt and returns both the raw AI result
 and a ForensicCheckEvent dict ready for SSE streaming.
 """
@@ -9,7 +9,7 @@ from ai.client import call_ai, load_prompt
 
 def analyze_content(content: str, content_type: str) -> dict:
     """
-    Send content to Claude for forensic fraud analysis.
+    Send content to the AI for forensic fraud analysis.
     Returns the parsed JSON from the AI (urgency_tactics, impersonation_quality, etc.)
     """
     system_prompt = load_prompt("fraud_analysis")

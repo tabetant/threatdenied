@@ -1,5 +1,5 @@
 """
-Claude-powered customer-facing alert drafter.
+AI-powered customer-facing alert drafter.
 Phase 6 implementation target.
 """
 from ai.client import call_ai, load_prompt

@@ -80,7 +80,7 @@ def seed():
 
         # ── Users ──────────────────────────────────────────────────────────────
         users = [
-            User(id=str(uuid.uuid4()), email="alice@example.com", name="Alice Chen",
+            User(id="demo-user-1", email="alice@example.com", name="Alice Chen",
                  reward_points=340, current_streak=3, tests_sent=9,
                  tests_flagged_correctly=7, real_submissions=4, accuracy_pct=77.8),
             User(id=str(uuid.uuid4()), email="bob@example.com", name="Bob Martinez",
@@ -98,6 +98,145 @@ def seed():
         ]
         for u in users:
             db.add(u)
+        db.commit()
+
+        # ── TestEmails for demo-user-1 ─────────────────────────────────────────
+        demo_user_id = "demo-user-1"
+        test_emails = [
+            # 1. Phishing (easy) — flagged correctly as phishing
+            TestEmail(
+                id=str(uuid.uuid4()),
+                user_id=demo_user_id,
+                type="phishing",
+                subject="Action Required: Reset Your TD EasyWeb Password Now",
+                body=(
+                    "Dear TD Customer,\n\n"
+                    "We have detected suspisious activityy on your account. "
+                    "Your TD EasyWeb password must be reset immediatly or your account will be SUSPENDED.\n\n"
+                    "Click here to reset NOW: https://td-reset-account.com/secure?token=839fj2\n\n"
+                    "Failure to comply within 24 hours will result in account closure.\n\n"
+                    "TD Security Team"
+                ),
+                from_address="security@td-reset-account.com",
+                difficulty="easy",
+                was_flagged=True,
+                flagged_at=datetime.utcnow() - timedelta(days=5),
+                red_flags=json.dumps(["fake domain td-reset-account.com", "spelling errors", "urgency threat", "asks to click link"]),
+                why_legitimate=None,
+                sent_at=datetime.utcnow() - timedelta(days=6),
+            ),
+            # 2. Phishing (medium) — flagged correctly as phishing
+            TestEmail(
+                id=str(uuid.uuid4()),
+                user_id=demo_user_id,
+                type="phishing",
+                subject="You have received an Interac e-Transfer of $350.00",
+                body=(
+                    "Hello,\n\n"
+                    "Mark Wilson has sent you $350.00 via Interac e-Transfer.\n\n"
+                    "To deposit your funds, please click the secure link below:\n"
+                    "https://td-etransfer-verify.ca/deposit?ref=TDE84729\n\n"
+                    "This transfer will expire in 24 hours. Do not share this link.\n\n"
+                    "TD Canada Trust"
+                ),
+                from_address="alerts@td-etransfer-verify.ca",
+                difficulty="medium",
+                was_flagged=True,
+                flagged_at=datetime.utcnow() - timedelta(days=3),
+                red_flags=json.dumps(["fake domain td-etransfer-verify.ca", "real e-transfers come from Interac not TD", "link to non-td domain"]),
+                why_legitimate=None,
+                sent_at=datetime.utcnow() - timedelta(days=4),
+            ),
+            # 3. Phishing (hard) — missed (user said legitimate)
+            TestEmail(
+                id=str(uuid.uuid4()),
+                user_id=demo_user_id,
+                type="phishing",
+                subject="Please verify your TD account information",
+                body=(
+                    "Dear Valued TD Customer,\n\n"
+                    "As part of our ongoing commitment to security, we periodically ask customers "
+                    "to verify their account information. This is a routine process.\n\n"
+                    "Please take a moment to confirm your details are up to date:\n"
+                    "https://td-customerservice.ca/verify-account\n\n"
+                    "If you have any questions, please contact us at 1-866-222-3456.\n\n"
+                    "Thank you for banking with TD.\n\n"
+                    "TD Canada Trust Customer Service"
+                ),
+                from_address="noreply@td-customerservice.ca",
+                difficulty="hard",
+                was_flagged=False,
+                flagged_at=datetime.utcnow() - timedelta(days=2),
+                red_flags=json.dumps(["domain is td-customerservice.ca not td.com", "TD never asks for account verification by email link"]),
+                why_legitimate=None,
+                sent_at=datetime.utcnow() - timedelta(days=3),
+            ),
+            # 4. Legitimate (easy) — flagged correctly as legitimate
+            TestEmail(
+                id=str(uuid.uuid4()),
+                user_id=demo_user_id,
+                type="legitimate",
+                subject="Your February statement is ready",
+                body=(
+                    "Your monthly statement for your TD Every Day Checking Account ending in 4521 "
+                    "is now available. Log in to EasyWeb at easyweb.td.com to view your statement.\n\n"
+                    "TD Canada Trust"
+                ),
+                from_address="statements@td.com",
+                difficulty="easy",
+                was_flagged=False,
+                flagged_at=datetime.utcnow() - timedelta(days=10),
+                red_flags=None,
+                why_legitimate=json.dumps(["real TD domain statements@td.com", "no suspicious links", "matches TD statement template", "no urgency"]),
+                sent_at=datetime.utcnow() - timedelta(days=11),
+            ),
+            # 5. Legitimate (medium) — incorrectly flagged as phishing
+            TestEmail(
+                id=str(uuid.uuid4()),
+                user_id=demo_user_id,
+                type="legitimate",
+                subject="Exclusive offer: 3% cashback on all purchases this weekend",
+                body=(
+                    "Hi Alice,\n\n"
+                    "As a valued TD Visa cardholder, we're pleased to offer you 3% cashback "
+                    "on all purchases made this weekend (March 14-15).\n\n"
+                    "No action required — the offer is automatically applied to your card ending in 4521.\n\n"
+                    "Visit td.com/rewards to learn more about TD rewards.\n\n"
+                    "TD Canada Trust"
+                ),
+                from_address="offers@td.com",
+                difficulty="medium",
+                was_flagged=True,
+                flagged_at=datetime.utcnow() - timedelta(days=1),
+                red_flags=None,
+                why_legitimate=json.dumps(["real TD domain offers@td.com", "no links to click", "directs to td.com not a third-party site", "no credentials requested"]),
+                sent_at=datetime.utcnow() - timedelta(days=2),
+            ),
+            # 6. Phishing (medium) — pending (not yet flagged)
+            TestEmail(
+                id=str(uuid.uuid4()),
+                user_id=demo_user_id,
+                type="phishing",
+                subject="ALERT: Suspicious transaction detected on your TD account",
+                body=(
+                    "TD Fraud Protection has detected unusual activity on your account.\n\n"
+                    "A purchase of $1,247.00 was attempted at an unknown international merchant. "
+                    "If this was not you, you must verify your identity immediately to prevent further charges.\n\n"
+                    "Secure your account now: https://td-fraud-protection.ca/verify?case=FR-29847\n\n"
+                    "You have 2 hours to respond before your card is permanently blocked.\n\n"
+                    "TD Fraud Protection Team"
+                ),
+                from_address="fraud-alerts@td-fraud-protection.ca",
+                difficulty="medium",
+                was_flagged=None,
+                flagged_at=None,
+                red_flags=json.dumps(["fake domain td-fraud-protection.ca", "extreme urgency (2-hour deadline)", "threatens permanent account block", "link to non-td domain"]),
+                why_legitimate=None,
+                sent_at=datetime.utcnow() - timedelta(hours=2),
+            ),
+        ]
+        for te in test_emails:
+            db.add(te)
         db.commit()
 
         # ── Campaigns ─────────────────────────────────────────────────────────
@@ -175,7 +314,7 @@ def seed():
             submission_count += 1
 
         db.commit()
-        print(f"✓ Seeded {len(users)} users, {len(campaigns)} campaigns, {submission_count} submissions."  )
+        print(f"✓ Seeded {len(users)} users, {len(campaigns)} campaigns, {submission_count} submissions, {len(test_emails)} test emails.")
 
     finally:
         db.close()

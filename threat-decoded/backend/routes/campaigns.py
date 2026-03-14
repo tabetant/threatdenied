@@ -1,10 +1,16 @@
 """GET /api/campaigns  |  GET /api/campaigns/brief/{id}"""
+import json
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from db import get_db, Campaign
+from db import get_db, Campaign, Submission
+from ai.campaign_analyst import analyze_campaign
+from ai.alert_writer import write_alert
 
 router = APIRouter()
+
+# In-memory cache for AI-generated briefs (hackathon-friendly, avoids repeat API calls)
+_brief_cache: dict[str, dict] = {}
 
 
 @router.get("/campaigns")
@@ -29,15 +35,57 @@ def list_campaigns(db: Session = Depends(get_db)):
 
 @router.get("/campaigns/brief/{campaign_id}")
 def get_campaign_brief(campaign_id: str, db: Session = Depends(get_db)):
-    """AI-generated threat intelligence brief — Phase 6"""
+    """AI-generated threat intelligence brief for a campaign."""
+    # Return cached brief if available
+    if campaign_id in _brief_cache:
+        return _brief_cache[campaign_id]
+
     campaign = db.query(Campaign).filter(Campaign.id == campaign_id).first()
     if not campaign:
         raise HTTPException(status_code=404, detail="Campaign not found")
 
-    # Phase 6: call ai/campaign_analyst.py here
-    return {
+    # Gather submissions for this campaign
+    submissions = (
+        db.query(Submission)
+        .filter(Submission.campaign_id == campaign_id)
+        .limit(10)
+        .all()
+    )
+
+    submissions_data = [
+        {
+            "type": s.type,
+            "content": s.content[:300],
+            "verdict": s.verdict,
+            "submitted_at": s.submitted_at.isoformat() if s.submitted_at else None,
+            "city": s.city,
+            "province": s.province,
+        }
+        for s in submissions
+    ]
+
+    # Call AI for campaign analysis
+    try:
+        analysis = analyze_campaign(submissions_data)
+        ai_summary = analysis.get("tactics_summary", campaign.tactics_summary or "Analysis pending.")
+    except Exception:
+        ai_summary = campaign.tactics_summary or "AI analysis unavailable."
+
+    # Call AI for customer-facing alert
+    try:
+        campaign_context = f"Campaign: {campaign.label}. Vector: {campaign.attack_vector}. Severity: {campaign.severity}. Summary: {ai_summary}"
+        recommended_alert = write_alert(campaign_context)
+    except Exception:
+        recommended_alert = campaign.customer_alert or "Alert generation unavailable."
+
+    result = {
         "campaign_id": campaign_id,
-        "ai_summary": "AI campaign brief — Phase 6 implementation pending.",
-        "recommended_alert": campaign.customer_alert or "Alert pending.",
+        "ai_summary": ai_summary,
+        "recommended_alert": recommended_alert,
         "severity": campaign.severity,
     }
+
+    # Cache the result
+    _brief_cache[campaign_id] = result
+
+    return result
