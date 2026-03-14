@@ -6,7 +6,7 @@ export default function HomePage() {
       <div className="max-w-2xl mx-auto px-6 py-20 text-center">
         <div className="mb-8">
           <span className="inline-block w-3 h-3 rounded-full bg-td-green mr-2" />
-          <span className="text-td-green font-semibold text-sm uppercase tracking-widest">TD Threat Decoded</span>
+          <span className="text-td-green font-semibold text-sm uppercase tracking-widest">TD Threat Denied</span>
         </div>
         <h1 className="text-4xl font-bold text-td-dark mb-4">
           Got a suspicious message claiming to be from TD?
