@@ -1,11 +1,18 @@
 from sqlalchemy import create_engine, Column, String, Text, Float, Boolean, DateTime
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from uuid import uuid4
 import os
 
 from dotenv import load_dotenv
 load_dotenv()
+
+EST = timezone(timedelta(hours=-5))
+
+
+def now_est():
+    return datetime.now(EST).replace(tzinfo=None)
+
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./threat_decoded.db")
 
@@ -39,14 +46,14 @@ class Submission(Base):
     raw_email = Column(Text)
 
     # AI analysis
-    ai_verdict = Column(String, nullable=True)       # "fraud", "legitimate", "suspicious"
+    ai_verdict = Column(String, nullable=True)
     ai_confidence = Column(Float, nullable=True)
     ai_fraud_score = Column(Float, nullable=True)
-    ai_analysis = Column(Text, nullable=True)        # full JSON from Claude
-    ai_signals = Column(Text, nullable=True)         # JSON array of triggered signals
+    ai_analysis = Column(Text, nullable=True)
+    ai_signals = Column(Text, nullable=True)
 
     # Status
-    status = Column(String, default="pending")       # pending, auto_replied, needs_review, reviewed
+    status = Column(String, default="pending")
 
     # Human review
     reviewer_verdict = Column(String, nullable=True)
@@ -58,7 +65,7 @@ class Submission(Base):
     reply_sent_at = Column(DateTime, nullable=True)
 
     # Timestamps
-    received_at = Column(DateTime, default=datetime.now)
+    received_at = Column(DateTime, default=now_est)
 
 
 def init_db():
