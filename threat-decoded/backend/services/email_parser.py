@@ -12,10 +12,10 @@ def parse_inbound_email(form_data) -> dict:
     original_sender = extract_original_sender(text_body)
     original_subject = re.sub(r'^(Fwd?|FW|Fw):\s*', '', subject, flags=re.IGNORECASE).strip()
 
-    # Strip forwarding metadata from the body so the AI only analyzes
-    # the original email content, not the "From:" / "Subject:" headers
-    # that get prepended when someone forwards an email.
-    original_body = strip_forwarding_headers(text_body or html_body or "")
+    # Strip ALL forwarding metadata from the body so Claude only sees
+    # the original email content — not Gmail forwarding headers, not
+    # the forwarder's email address, nothing that could confuse the AI.
+    original_body = strip_forwarding_metadata(text_body or html_body or "", forwarded_by)
 
     return {
         "forwarded_by": forwarded_by,
@@ -46,31 +46,55 @@ def extract_original_sender(body: str) -> str:
     return "unknown"
 
 
-def strip_forwarding_headers(body: str) -> str:
-    """Remove forwarding 'From:' and 'Subject:' lines from the top of the body.
+def strip_forwarding_metadata(body: str, forwarded_by: str = "") -> str:
+    """Remove all forwarding metadata from the email body.
 
-    When a user forwards an email, the body often starts with lines like:
-        From: TD Canada Trust <statements@td.com>
-        Subject: Your statement is ready
+    Handles multiple forwarding formats:
+    - Gmail: "---------- Forwarded message ---------" block
+    - Outlook: "From: ... Sent: ... To: ... Subject: ..."
+    - Generic: "From:" / "Subject:" lines at the top
+    - Quoted text with ">" prefixes
 
-    These confuse the AI because the 'From' in the body conflicts with the
-    actual sender metadata. Strip them so the AI only sees the message content.
+    Also removes any mention of the forwarder's email address so Claude
+    cannot confuse the forwarder with the original sender.
     """
+    # Step 1: Remove Gmail forwarding block
+    # "---------- Forwarded message ---------\nFrom: ...\nDate: ...\nSubject: ...\nTo: ...\n"
+    body = re.sub(
+        r'-{5,}\s*Forwarded message\s*-{5,}\s*\n'
+        r'(?:(?:From|Date|Subject|To|Cc|Bcc|Sent):.*\n)*'
+        r'\n*',
+        '', body, flags=re.IGNORECASE
+    )
+
+    # Step 2: Remove Outlook-style forwarding block
+    # "From: Someone\nSent: ...\nTo: ...\nSubject: ..."
+    body = re.sub(
+        r'^From:\s.*\nSent:\s.*\nTo:\s.*\nSubject:\s.*\n\n*',
+        '', body, flags=re.IGNORECASE | re.MULTILINE
+    )
+
+    # Step 3: Strip header-like lines from the very top of the body
     lines = body.split('\n')
     start = 0
     for i, line in enumerate(lines):
         stripped = line.strip()
-        # Skip lines that look like forwarding headers
-        if re.match(r'^(From|Subject|Date|To|Sent|Cc):\s', stripped, re.IGNORECASE):
+        if re.match(r'^(From|Subject|Date|To|Sent|Cc|Bcc):\s', stripped, re.IGNORECASE):
             start = i + 1
             continue
-        # Skip blank lines between headers and body
         if stripped == '' and start > 0 and i == start:
             start = i + 1
             continue
-        # Once we hit a non-header, non-blank line, stop
         break
+    body = '\n'.join(lines[start:])
 
-    result = '\n'.join(lines[start:]).strip()
-    # If stripping removed everything, return original
-    return result if result else body.strip()
+    # Step 4: Remove the forwarder's email address from the body entirely
+    # This prevents Claude from seeing "carlgergi6@gmail.com" anywhere in the text
+    if forwarded_by and '@' in forwarded_by:
+        body = body.replace(forwarded_by, '[customer]')
+
+    # Step 5: Remove any ">" quoted-text prefixes
+    body = re.sub(r'^>\s?', '', body, flags=re.MULTILINE)
+
+    result = body.strip()
+    return result if result else (body.strip() or "(empty)")
