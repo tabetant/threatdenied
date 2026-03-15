@@ -111,10 +111,13 @@ def compute_verdict(ai_result: dict) -> dict:
     ai_summary = ai_result.get("summary", "")
 
     # ── CONSISTENCY SAFEGUARD ──────────────────────────────────────────────────
-    # If the scorer's classification matches the AI's verdict, use the AI summary
-    # directly. If they disagree, build a new summary from the signals so the
-    # explanation never contradicts the displayed verdict.
-    if _verdicts_agree(classification, ai_verdict) and ai_summary:
+    # Three checks before trusting the AI summary:
+    # 1. Scorer and AI verdicts must agree
+    # 2. The summary text itself must not contradict the verdict
+    # If either fails, build a new summary from the signals.
+    if (_verdicts_agree(classification, ai_verdict)
+            and ai_summary
+            and not _summary_contradicts_verdict(classification, ai_summary)):
         summary = ai_summary
     else:
         summary = _build_summary(classification, confidence, fraud_score, signals, sc, ua, ca)
@@ -126,6 +129,28 @@ def compute_verdict(ai_result: dict) -> dict:
         "signals_triggered": signals,
         "summary": summary
     }
+
+
+def _summary_contradicts_verdict(classification: str, summary: str) -> bool:
+    """Catch cases where Claude's own summary contradicts its own verdict."""
+    text = summary.lower()
+    if classification == "legitimate":
+        # Summary says legitimate but contains fraud language
+        fraud_words = ["fraudulent", "phishing", "scam", "do not trust",
+                       "do not click", "credential harvesting", "not legitimate",
+                       "is fraudulent", "is a scam", "is phishing",
+                       "not a legitimate", "not a registered", "not a recognized",
+                       "should not be trusted", "not be trusted"]
+        return any(w in text for w in fraud_words)
+    elif classification == "fraud":
+        # Summary says fraud but contains legitimacy language
+        legit_words = ["is legitimate", "appears legitimate", "verified legitimate",
+                       "appears safe", "is safe", "can be trusted",
+                       "appears consistent with authentic",
+                       "appears consistent with legitimate",
+                       "no fraud indicators", "no suspicious"]
+        return any(w in text for w in legit_words)
+    return False
 
 
 def _verdicts_agree(scorer_verdict: str, ai_verdict: str) -> bool:
