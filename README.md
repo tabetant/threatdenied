@@ -2,7 +2,7 @@
 
 > Got a suspicious message claiming to be from TD? Don't wonder — ask TD. And we'll reward you for staying sharp.
 
-TD Best AI Hack — GenAI Hackathon 2026
+GenAI Genesis Hackathon 2026
 
 ---
 
