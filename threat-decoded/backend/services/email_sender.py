@@ -3,8 +3,13 @@ import smtplib
 import httpx
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from dotenv import load_dotenv
 
-EMAIL_MODE = os.getenv("EMAIL_MODE", "simulated")
+load_dotenv()
+
+
+def _mode():
+    return os.getenv("EMAIL_MODE", "simulated")
 
 
 def send_reply(to: str, verdict: str, original_subject: str, original_body: str, original_sender: str, analysis_summary: str) -> bool:
@@ -68,7 +73,9 @@ Our system needs more time to verify this email. A TD analyst is reviewing it an
 TD Threat Decoded
 verify@threatdecoded.com"""
 
-    if EMAIL_MODE == "simulated":
+    mode = _mode()
+
+    if mode == "simulated":
         print(f"\n{'='*60}")
         print(f"SIMULATED EMAIL REPLY")
         print(f"To: {to}")
@@ -78,8 +85,7 @@ verify@threatdecoded.com"""
         print(f"{'='*60}\n")
         return True
 
-    elif EMAIL_MODE == "smtp":
-        # Gmail SMTP with app password (no custom domain needed)
+    elif mode == "smtp":
         smtp_host = os.getenv("SMTP_HOST", "smtp.gmail.com")
         smtp_port = int(os.getenv("SMTP_PORT", "587"))
         smtp_user = os.getenv("SMTP_USER", "")
@@ -98,7 +104,7 @@ verify@threatdecoded.com"""
             server.sendmail(smtp_from, to, msg.as_string())
         return True
 
-    elif EMAIL_MODE == "sendgrid":
+    elif mode == "sendgrid":
         api_key = os.getenv("SENDGRID_API_KEY")
         resp = httpx.post(
             "https://api.sendgrid.com/v3/mail/send",
