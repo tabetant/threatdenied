@@ -15,20 +15,30 @@ def analyze_email(sender: str, subject: str, body: str, headers: str = None) -> 
     known_senders = json.load(open(os.path.join(_DATA, "td_known_senders.json")))
     td_templates = json.load(open(os.path.join(_DATA, "td_templates.json")))
 
-    user_message = f"""Analyze this email forwarded to TD Bank for fraud verification.
+    # Extract just the domain from the sender for clarity
+    sender_domain = sender.split("@")[-1] if "@" in sender else ""
 
-IMPORTANT CONTEXT: A TD customer forwarded this email to verify@td.com because they weren't sure if it was real. The ORIGINAL SENDER below is the address that sent the email to the customer — this is what you need to verify. Do NOT confuse the customer who forwarded it with the sender of the suspicious email.
+    user_message = f"""Analyze this email for fraud verification.
 
-ORIGINAL SENDER (verify this address): {sender}
+=== CRITICAL: READ THIS FIRST ===
+A TD customer forwarded this email to verify@td.com to check if it is real.
+The ONLY thing you are analyzing is the original email below — sent BY the ORIGINAL SENDER TO the customer.
+The customer who forwarded it to us is IRRELEVANT to your analysis. Do NOT mention them. Do NOT factor them into your verdict.
+
+ORIGINAL SENDER ADDRESS: {sender}
+ORIGINAL SENDER DOMAIN: {sender_domain}
 SUBJECT: {subject}
-HEADERS: {headers or "Not available"}
 
-EMAIL BODY:
+EMAIL BODY (this is what the customer received):
 ---
 {body}
 ---
 
-TD BANK KNOWN LEGITIMATE SENDERS:
+=== SENDER VERIFICATION ===
+Check if "{sender_domain}" matches any domain in the known senders list below.
+If the domain after the @ sign matches a known TD domain, the sender IS a known TD sender.
+
+TD BANK KNOWN LEGITIMATE SENDER DOMAINS:
 {json.dumps(known_senders, indent=2)}
 
 TD BANK REAL COMMUNICATION TEMPLATES:

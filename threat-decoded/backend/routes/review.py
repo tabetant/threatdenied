@@ -48,7 +48,7 @@ def submit_review(submission_id: str, body: dict):
     verdict = body.get("verdict")
     submission.reviewer_verdict = verdict
     submission.reviewer_notes = body.get("notes", "")
-    submission.reviewed_at = datetime.utcnow()
+    submission.reviewed_at = datetime.now()
     submission.status = "reviewed"
     db.commit()  # Save verdict first, before attempting email
 
@@ -75,7 +75,7 @@ def submit_review(submission_id: str, body: dict):
             analysis_summary=summary
         )
         submission.reply_sent = True
-        submission.reply_sent_at = datetime.utcnow()
+        submission.reply_sent_at = datetime.now()
         db.commit()
         logger.info(f"Reply sent for submission {submission_id} verdict={verdict}")
     except Exception as e:
