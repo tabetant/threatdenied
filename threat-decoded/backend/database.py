@@ -52,7 +52,7 @@ class Submission(Base):
     reply_sent_at = Column(DateTime, nullable=True)
 
     # Timestamps
-    received_at = Column(DateTime, default=datetime.utcnow)
+    received_at = Column(DateTime, default=datetime.now)
 
 
 def init_db():

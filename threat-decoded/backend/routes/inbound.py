@@ -70,7 +70,7 @@ def process_submission(submission_id: str):
             )
             submission.status = "auto_replied"
             submission.reply_sent = True
-            submission.reply_sent_at = datetime.utcnow()
+            submission.reply_sent_at = datetime.now()
         else:
             submission.status = "needs_review"
 
