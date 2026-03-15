@@ -1,40 +1,34 @@
-from fastapi import APIRouter, Request, BackgroundTasks
+from fastapi import APIRouter, Request, BackgroundTasks, Depends
 from services.email_parser import parse_inbound_email
 from services.analyzer import analyze_email
 from services.scorer import compute_verdict
 from services.email_sender import send_reply
-from database import SessionLocal, Submission
-from datetime import datetime
+from database import get_db, SessionLocal, Submission, now_est
 import json
 
 router = APIRouter()
 
 
 @router.post("/inbound")
-async def receive_email(request: Request, background_tasks: BackgroundTasks):
+async def receive_email(request: Request, background_tasks: BackgroundTasks, db=Depends(get_db)):
     form = await request.form()
     parsed = parse_inbound_email(form)
 
-    db = SessionLocal()
-    try:
-        submission = Submission(
-            forwarded_by=parsed["forwarded_by"],
-            original_sender=parsed["original_sender"],
-            original_subject=parsed["original_subject"],
-            original_body=parsed["original_body"],
-            original_headers=parsed["original_headers"],
-            raw_email=parsed["raw_email"],
-            status="pending"
-        )
-        db.add(submission)
-        db.commit()
-        db.refresh(submission)
-        sub_id = submission.id
-    finally:
-        db.close()
+    submission = Submission(
+        forwarded_by=parsed["forwarded_by"],
+        original_sender=parsed["original_sender"],
+        original_subject=parsed["original_subject"],
+        original_body=parsed["original_body"],
+        original_headers=parsed["original_headers"],
+        raw_email=parsed["raw_email"],
+        status="pending"
+    )
+    db.add(submission)
+    db.commit()
+    db.refresh(submission)
 
-    background_tasks.add_task(process_submission, sub_id)
-    return {"status": "received", "id": sub_id}
+    background_tasks.add_task(process_submission, submission.id)
+    return {"status": "received", "id": submission.id}
 
 
 def process_submission(submission_id: str):
@@ -54,8 +48,7 @@ def process_submission(submission_id: str):
 
             verdict = compute_verdict(ai_result)
 
-            # Store the corrected summary back into ai_result so the admin UI
-            # always shows a summary that matches the final verdict
+            # Store corrected summary so admin UI always matches final verdict
             ai_result["summary"] = verdict["summary"]
 
             submission.ai_verdict = verdict["classification"]
@@ -75,7 +68,7 @@ def process_submission(submission_id: str):
                 )
                 submission.status = "auto_replied"
                 submission.reply_sent = True
-                submission.reply_sent_at = datetime.now()
+                submission.reply_sent_at = now_est()
             else:
                 submission.status = "needs_review"
 
