@@ -49,6 +49,10 @@ def process_submission(submission_id: str):
 
         verdict = compute_verdict(ai_result)
 
+        # Store the corrected summary back into ai_result so the admin UI
+        # always shows a summary that matches the final verdict
+        ai_result["summary"] = verdict["summary"]
+
         submission.ai_verdict = verdict["classification"]
         submission.ai_confidence = verdict["confidence"]
         submission.ai_fraud_score = verdict["fraud_score"]
