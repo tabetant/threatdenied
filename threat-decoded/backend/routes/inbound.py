@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Request, BackgroundTasks
+from fastapi import APIRouter, Request, BackgroundTasks, Depends
 from services.email_parser import parse_inbound_email
 from services.analyzer import analyze_email
 from services.scorer import compute_verdict
 from services.email_sender import send_reply
-from database import get_db, Submission
+from database import get_db, SessionLocal, Submission
 from datetime import datetime
 import json
 
@@ -11,11 +11,10 @@ router = APIRouter()
 
 
 @router.post("/inbound")
-async def receive_email(request: Request, background_tasks: BackgroundTasks):
+async def receive_email(request: Request, background_tasks: BackgroundTasks, db=Depends(get_db)):
     form = await request.form()
     parsed = parse_inbound_email(form)
 
-    db = next(get_db())
     submission = Submission(
         forwarded_by=parsed["forwarded_by"],
         original_sender=parsed["original_sender"],
@@ -34,12 +33,12 @@ async def receive_email(request: Request, background_tasks: BackgroundTasks):
 
 
 def process_submission(submission_id: str):
-    db = next(get_db())
-    submission = db.query(Submission).filter(Submission.id == submission_id).first()
-    if not submission:
-        return
-
+    db = SessionLocal()
     try:
+        submission = db.query(Submission).filter(Submission.id == submission_id).first()
+        if not submission:
+            return
+
         ai_result = analyze_email(
             sender=submission.original_sender or "unknown",
             subject=submission.original_subject or "",
@@ -74,4 +73,6 @@ def process_submission(submission_id: str):
         submission.status = "needs_review"
         submission.ai_analysis = json.dumps({"error": str(e)})
 
-    db.commit()
+    finally:
+        db.commit()
+        db.close()

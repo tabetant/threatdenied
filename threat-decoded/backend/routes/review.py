@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from database import get_db, Submission
 from services.email_sender import send_reply
 from datetime import datetime
@@ -10,8 +10,7 @@ router = APIRouter()
 
 
 @router.get("/api/queue")
-def get_review_queue():
-    db = next(get_db())
+def get_review_queue(db=Depends(get_db)):
     pending = db.query(Submission).filter(Submission.status == "needs_review").order_by(Submission.received_at.desc()).all()
     return [{
         "id": s.id,
@@ -29,8 +28,7 @@ def get_review_queue():
 
 
 @router.post("/api/review/{submission_id}")
-def submit_review(submission_id: str, body: dict):
-    db = next(get_db())
+def submit_review(submission_id: str, body: dict, db=Depends(get_db)):
     submission = db.query(Submission).filter(Submission.id == submission_id).first()
     if not submission:
         return {"error": "Not found"}
@@ -65,8 +63,7 @@ def submit_review(submission_id: str, body: dict):
 
 
 @router.get("/api/history")
-def get_history():
-    db = next(get_db())
+def get_history(db=Depends(get_db)):
     recent = db.query(Submission).filter(
         Submission.status.in_(["auto_replied", "reviewed"])
     ).order_by(Submission.received_at.desc()).limit(50).all()
