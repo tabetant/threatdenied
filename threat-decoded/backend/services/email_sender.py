@@ -127,14 +127,17 @@ def _sanitize_summary(verdict: str, summary: str) -> str:
                        "do not click", "credential harvesting", "not legitimate",
                        "is fraudulent", "is a scam", "is phishing",
                        "should not be trusted", "not be trusted",
-                       "not a legitimate", "not a registered", "not a recognized"]
+                       "not a legitimate", "not a registered", "not a recognized",
+                       "impersonating", "fake display name", "personal gmail",
+                       "personal email", "actual sender is"]
         if any(w in text for w in fraud_words):
             return "This email has been verified as a legitimate TD Bank communication. The sender address matches TD's known sender registry and the content is consistent with authentic TD correspondence."
 
     elif verdict == "fraud":
         legit_words = ["is legitimate", "appears legitimate", "verified legitimate",
                        "appears safe", "is safe", "can be trusted",
-                       "no fraud indicators", "no suspicious"]
+                       "no fraud indicators", "no suspicious",
+                       "verified td", "authentic td", "consistent with authentic"]
         if any(w in text for w in legit_words):
             return "This email has been identified as fraudulent. The message contains indicators inconsistent with authentic TD Bank communications. Do not interact with any links or provide personal information."
 
