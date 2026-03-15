@@ -17,11 +17,13 @@ def analyze_email(sender: str, subject: str, body: str, headers: str = None) -> 
 
     user_message = f"""Analyze this email forwarded to TD Bank for fraud verification.
 
-SENDER: {sender}
+IMPORTANT CONTEXT: A TD customer forwarded this email to verify@td.com because they weren't sure if it was real. The ORIGINAL SENDER below is the address that sent the email to the customer — this is what you need to verify. Do NOT confuse the customer who forwarded it with the sender of the suspicious email.
+
+ORIGINAL SENDER (verify this address): {sender}
 SUBJECT: {subject}
 HEADERS: {headers or "Not available"}
 
-BODY:
+EMAIL BODY:
 ---
 {body}
 ---
