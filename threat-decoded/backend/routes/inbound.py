@@ -3,8 +3,7 @@ from services.email_parser import parse_inbound_email
 from services.analyzer import analyze_email
 from services.scorer import compute_verdict
 from services.email_sender import send_reply
-from database import get_db, SessionLocal, Submission
-from datetime import datetime
+from database import get_db, SessionLocal, Submission, now_est
 import json
 
 router = APIRouter()
@@ -65,7 +64,7 @@ def process_submission(submission_id: str):
             )
             submission.status = "auto_replied"
             submission.reply_sent = True
-            submission.reply_sent_at = datetime.utcnow()
+            submission.reply_sent_at = now_est()
         else:
             submission.status = "needs_review"
 

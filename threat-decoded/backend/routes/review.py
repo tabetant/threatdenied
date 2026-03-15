@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends
-from database import get_db, Submission
+from database import get_db, Submission, now_est
 from services.email_sender import send_reply
-from datetime import datetime
 import json
 import logging
 
@@ -36,23 +35,29 @@ def submit_review(submission_id: str, body: dict, db=Depends(get_db)):
     verdict = body.get("verdict")
     submission.reviewer_verdict = verdict
     submission.reviewer_notes = body.get("notes", "")
-    submission.reviewed_at = datetime.utcnow()
+    submission.reviewed_at = now_est()
     submission.status = "reviewed"
     db.commit()  # Save verdict first, before attempting email
 
     # Send reply separately so a mail failure doesn't break the verdict save
     try:
-        analysis = json.loads(submission.ai_analysis) if submission.ai_analysis else {}
+        if verdict == "fraud":
+            summary = "A TD analyst has reviewed this email and confirmed it is FRAUDULENT. Do not interact with this email or its sender."
+        elif verdict == "legitimate":
+            summary = "A TD analyst has reviewed this email and confirmed it is LEGITIMATE and was sent by TD Bank."
+        else:
+            summary = "A TD analyst has reviewed this email."
+
         send_reply(
             to=submission.forwarded_by,
             verdict=verdict,
             original_subject=submission.original_subject or "",
             original_body=submission.original_body or "",
             original_sender=submission.original_sender or "unknown",
-            analysis_summary=analysis.get("summary", "Reviewed by a TD analyst.")
+            analysis_summary=summary
         )
         submission.reply_sent = True
-        submission.reply_sent_at = datetime.utcnow()
+        submission.reply_sent_at = now_est()
         db.commit()
         logger.info(f"Reply sent for submission {submission_id} verdict={verdict}")
     except Exception as e:

@@ -1,6 +1,12 @@
 from sqlalchemy import create_engine, Column, String, Text, Float, Boolean, DateTime
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
+EST = timezone(timedelta(hours=-5))
+
+
+def now_est():
+    return datetime.now(EST).replace(tzinfo=None)
 from uuid import uuid4
 import os
 
@@ -52,7 +58,7 @@ class Submission(Base):
     reply_sent_at = Column(DateTime, nullable=True)
 
     # Timestamps
-    received_at = Column(DateTime, default=datetime.utcnow)
+    received_at = Column(DateTime, default=now_est)
 
 
 def init_db():
