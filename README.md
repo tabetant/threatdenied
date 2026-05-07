@@ -9,11 +9,12 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white" alt="Python"/>
-  <img src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white" alt="FastAPI"/>
-  <img src="https://img.shields.io/badge/Claude_AI-Anthropic-6B4FBB?logo=anthropic&logoColor=white" alt="Claude"/>
-  <img src="https://img.shields.io/badge/SQLite-003B57?logo=sqlite&logoColor=white" alt="SQLite"/>
-  <img src="https://img.shields.io/badge/GenAI_Genesis-Hackathon_2026-008A4C" alt="Hackathon"/>
+  <a href="https://www.python.org"><img src="https://img.shields.io/badge/Python-3.13-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python"/></a>
+  <a href="https://fastapi.tiangolo.com"><img src="https://img.shields.io/badge/FastAPI-SSE-009688?style=flat-square&logo=fastapi&logoColor=white" alt="FastAPI"/></a>
+  <a href="https://www.anthropic.com"><img src="https://img.shields.io/badge/Claude-Anthropic-D97706?style=flat-square&logo=anthropic&logoColor=white" alt="Claude"/></a>
+  <img src="https://img.shields.io/badge/SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white" alt="SQLite"/>
+  <img src="https://img.shields.io/badge/GenAI%20Genesis-Hackathon%202026-008A4C?style=flat-square" alt="Hackathon"/>
+  <img src="https://img.shields.io/github/last-commit/tabetant/threatdenied?style=flat-square" alt="Last commit"/>
 </p>
 
 <p align="center">
@@ -24,11 +25,11 @@
 
 ## 🎯 The Problem
 
-Banks catch 95% of fraud. But that last 5% still lands in the customer's inbox — and they have no way to know if it's real.
+Banks catch 95% of fraud. But that last 5% still lands in the customer's inbox, and they have no way to know if it's real.
 
 Spam filters **guess** based on patterns. TD has something no third party has: **ground truth**. TD knows exactly what it sent, to whom, and when. The system was never the problem. The user was unprotected.
 
-> APP fraud (authorized push payment) is the fastest-growing fraud type globally. It always starts with a fake message impersonating the bank — before any transaction ever happens.
+> APP fraud (authorized push payment) is the fastest-growing fraud type globally. It always starts with a fake message impersonating the bank, before any transaction ever happens.
 
 ---
 
@@ -36,7 +37,7 @@ Spam filters **guess** based on patterns. TD has something no third party has: *
 
 **One action. One answer. No guessing.**
 
-A customer gets a sketchy text or email. They forward it to `verify@td.com`. That's it — one tap, same as forwarding to a friend. No app download, no URL to visit, no content to paste.
+A customer gets a sketchy text or email. They forward it to `verify@td.com`. That's it. One tap, same as forwarding to a friend. No app download, no URL to visit, no content to paste.
 
 The AI doesn't guess. It checks TD's own records and delivers a **definitive verdict** with full evidence.
 
@@ -46,7 +47,7 @@ The AI doesn't guess. It checks TD's own records and delivers a **definitive ver
 
 ### 1. Verification
 
-The system ingests the forwarded email — headers, sender info, links, body — and runs **five forensic checks in parallel**:
+The system ingests the forwarded email (headers, sender info, links, body) and runs **five forensic checks in parallel**:
 
 | Check | What it does |
 |-------|-------------|
@@ -58,11 +59,11 @@ The system ingests the forwarded email — headers, sender info, links, body —
 
 All five scores feed into the **Verdict Engine** → `FRAUD` / `LEGITIMATE` / `INCONCLUSIVE` with a confidence percentage. The customer gets the result back with a full breakdown of what was found and why.
 
-After a fraud verdict, customers can chat with an AI agent for follow-ups — *"What should I do?" "Should I call the police?" "Did anyone else get this?"*
+After a fraud verdict, customers can chat with an AI agent for follow-ups: *"What should I do?" "Should I call the police?" "Did anyone else get this?"*
 
 ### 2. Training & Gamification
 
-TD sends each enrolled customer **3–10 fake phishing emails per month**, mixed into their regular inbox. Difficulty varies — some are obvious, some are near-perfect.
+TD sends each enrolled customer **3 to 10 fake phishing emails per month**, mixed into their regular inbox. Difficulty varies. Some are obvious, some are near-perfect.
 
 Customers handle them the same way: forward to `verify@td.com`. The system knows which ones are tests.
 
@@ -71,7 +72,7 @@ Customers handle them the same way: forward to `verify@td.com`. The system knows
 | ✅ Correctly flag a test | Earn TD reward points |
 | ✅ Submit a real phishing email | Bonus points if it matches a campaign |
 | ❌ Miss a test | AI coach explains what you should have caught |
-| ❌ Flag a real TD email as fraud | Lose points — accuracy matters, not volume |
+| ❌ Flag a real TD email as fraud | Lose points. Accuracy matters, not volume |
 
 After each flag, the **AI Training Coach** gives personalized feedback: what they caught, what they missed, and tips for next time. Customers track accuracy, streaks, and rewards on their score card.
 
@@ -86,7 +87,7 @@ Individual reports → AI clusters similar submissions → Named campaigns emerg
                               TD pushes proactive warnings to all customers
 ```
 
-The dashboard shows active campaigns, a geographic threat map, submission trends, and detection rates — all powered by AI-generated analysis.
+The dashboard shows active campaigns, a geographic threat map, submission trends, and detection rates, all powered by AI-generated analysis.
 
 ---
 
@@ -99,7 +100,7 @@ This isn't a single API call with a wrapper. **Every major function runs on its 
 | 1 | **Fraud Analyst** | Scores submitted messages across five dimensions, returns a structured verdict with reasoning |
 | 2 | **Phish Generator** | Writes realistic test phishing emails at varying difficulty, plus legitimate TD emails mixed in |
 | 3 | **Training Coach** | Explains what the customer got right or wrong, gives actionable tips, keeps it friendly |
-| 4 | **Chat Agent** | Conversational follow-up after a verdict — answers "why?" and "what now?" |
+| 4 | **Chat Agent** | Conversational follow-up after a verdict, answers "why?" and "what now?" |
 | 5 | **Scoring Judge** | Handles edge cases in scoring, explains point decisions when the answer isn't clear-cut |
 | 6 | **Campaign Analyst** | Clusters submissions, names campaigns, identifies target demographics, writes intel summaries |
 | 7 | **Alert Writer** | Drafts customer warnings when a new campaign is detected, ready for TD to review and send |
@@ -111,7 +112,7 @@ This isn't a single API call with a wrapper. **Every major function runs on its 
 | Layer | Technology |
 |-------|-----------|
 | Backend | Python 3.13, FastAPI, SSE streaming |
-| AI | Claude (Anthropic) — Sonnet for analysis/generation, Haiku for coaching/scoring |
+| AI | Claude (Anthropic). Sonnet for analysis/generation, Haiku for coaching/scoring |
 | Database | SQLite + SQLAlchemy |
 | Admin UI | Static HTML / CSS / JS |
 | Email | SendGrid / SMTP / simulated (configurable) |
@@ -206,6 +207,9 @@ threat-denied/
 
 ---
 
-<p align="center">
-  <strong>Threat Denied</strong> — because TD shouldn't guess. They should know.
-</p>
+## 👤 Author
+
+**Antoine Tabet**, UofT Computer Engineering
+[LinkedIn](https://linkedin.com/in/antoinetabetuoft) · [antoine.tabet@mail.utoronto.ca](mailto:antoine.tabet@mail.utoronto.ca) · [GitHub](https://github.com/tabetant)
+
+> Built solo for **GenAI Genesis 2026** at the University of Toronto.
