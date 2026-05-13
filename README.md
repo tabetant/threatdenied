@@ -207,9 +207,11 @@ threat-denied/
 
 ---
 
-## 👤 Author
+## 👥 Team
 
-**Antoine Tabet**, UofT Computer Engineering
-[LinkedIn](https://linkedin.com/in/antoinetabetuoft) · [antoine.tabet@mail.utoronto.ca](mailto:antoine.tabet@mail.utoronto.ca) · [GitHub](https://github.com/tabetant)
+Built by a 4-person team for **GenAI Genesis 2026** at the University of Toronto:
 
-> Built solo for **GenAI Genesis 2026** at the University of Toronto.
+- **Antoine Tabet** ([@tabetant](https://github.com/tabetant)) · [LinkedIn](https://linkedin.com/in/antoinetabetuoft) · [antoine.tabet@mail.utoronto.ca](mailto:antoine.tabet@mail.utoronto.ca)
+- **Carl Gergi** ([@CarlGergi](https://github.com/CarlGergi))
+- **Mohamad Salman** ([@mohamadmsalman82](https://github.com/mohamadmsalman82))
+- **Michel Issa**
